@@ -1,0 +1,12 @@
+{
+  "model_path": "artifacts/nb_pipeline_v2_20251012_140030.joblib",
+  "library": "scikit-learn",
+  "sklearn_version": "1.7.1",
+  "trained_on": "datos etapa1 + etapa2 (augmentados)",
+  "expects_preprocessed_text": true,
+  "labels": [
+    1,
+    3,
+    4
+  ]
+}
