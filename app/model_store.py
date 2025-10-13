@@ -6,6 +6,16 @@ import pandas as pd
 
 from .config import ARTIFACTS_DIR, MODEL_FILENAME
 
+from .text_normalizer import TextNormalizer, process_text_once
+
+# Compatibilidad con modelos guardados desde cuadernos (módulo "__main__")
+import sys as _sys
+try:
+    _sys.modules['__main__'].TextNormalizer = TextNormalizer
+    _sys.modules['__main__'].process_text_once = process_text_once
+except Exception:
+    pass
+
 _lock = threading.Lock()
 _model = None
 _model_path: Optional[Path] = None
@@ -49,7 +59,7 @@ def predict(texts_series: pd.Series, return_probas: bool = False):
 
 def retrain_and_save(X_series: pd.Series, y, base_name: str = "nb_pipeline_v2") -> Path:
     """
-    Clona el pipeline actual, hace fit con los nuevos datos y guarda a disco con timestamp.
+    Clona el pipeline actual, hace fit con los nuevos datos (crudos) y guarda a disco con timestamp.
     Retorna la ruta del nuevo .joblib.
     """
     from sklearn.base import clone
