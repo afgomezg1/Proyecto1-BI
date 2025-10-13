@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ods-api:0.1.0
+    container_name: ods-api
+    environment:
+      ENV: prod
+      ARTIFACTS_DIR: /artifacts
+      MODEL_FILENAME: ""
+      RETURN_PROBAS: "1"
+      GUNICORN_CMD_ARGS: "--access-logfile - --error-logfile - --log-level info"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./artifacts:/artifacts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped

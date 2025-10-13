@@ -1,0 +1,31 @@
+# Python cache / builds
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# Entornos / variables locales
+.venv/
+venv/
+.env
+
+# Control de versiones / metadatos
+.git/
+.gitignore
+
+# Cachés / tooling / notebooks
+.mypy_cache/
+.pytest_cache/
+.coverage
+*.ipynb
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+
+# Artefactos del modelo (se montan como volumen, no se hornean)
+artifacts/

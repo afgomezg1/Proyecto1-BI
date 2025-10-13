@@ -7,12 +7,13 @@ from nltk.corpus import stopwords
 from nltk import word_tokenize
 import nltk
 
-# Asegura recursos NLTK en runtime
-for pkg, locator in [("punkt", "tokenizers/punkt"), ("stopwords", "corpora/stopwords")]:
-    try:
-        nltk.data.find(locator)
-    except LookupError:
-        nltk.download(pkg, quiet=True)
+# Asegura recursos NLTK (verificación; ya horneados en la imagen)
+for pkg, locator in [
+    ("punkt", "tokenizers/punkt"),
+    ("punkt_tab", "tokenizers/punkt_tab/spanish/"),
+    ("stopwords", "corpora/stopwords"),
+]:
+    nltk.data.find(locator)  # si no está, lanzará LookupError (debería estar)
 
 stemmer = SnowballStemmer("spanish")
 _spanish_stopwords = set(stopwords.words("spanish"))
