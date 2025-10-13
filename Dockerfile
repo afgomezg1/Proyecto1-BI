@@ -29,8 +29,9 @@ for p in ["punkt","punkt_tab","stopwords"]:
 print("NLTK data preloaded")
 PY
 
-# Copiar SOLO el código de la API
+# Copiar el código de la API y el frontend
 COPY app/ app/
+COPY frontend/ frontend/
 
 # Usuario no-root y permisos
 RUN useradd -u 1000 -m appuser && \

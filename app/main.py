@@ -1,11 +1,15 @@
 # app/main.py
+import os
+
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
-from .schemas import PredictRequest, PredictResponse, RetrainRequest
-from .model_store import load_model, predict, retrain_incremental_and_save
 from .config import RETURN_PROBAS
+from .model_store import load_model, predict, retrain_incremental_and_save
+from .schemas import PredictRequest, PredictResponse, RetrainRequest
 
 app = FastAPI(title="ODS Classifier API", version="2.1")
 
@@ -64,3 +68,12 @@ def retrain_endpoint(req: RetrainRequest):
         "metrics_before": before,   # accuracy, balanced_acc, precision_macro, recall_macro, f1_macro
         "metrics_after": after
     }
+
+# Frontend
+# Sirve todo lo que hay en frontend/ bajo /static
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+# SPA en "/"
+@app.get("/")
+def home():
+    return FileResponse(os.path.join("frontend", "index.html"))

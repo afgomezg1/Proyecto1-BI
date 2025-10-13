@@ -1,0 +1,99 @@
+/* ====== Tema personalizado (acento oscuro) ====== */
+:root{
+  /* Acento principal (gris oscuro/negro) */
+  --brand-primary: #343a40;         /* normal */
+  --brand-primary-600: #2b3035;     /* hover */
+  --brand-primary-700: #212529;     /* active */
+  --brand-primary-rgb: 52,58,64;
+
+  /* Gris para botones outline y bordes */
+  --brand-muted: #6c757d;
+  --brand-muted-600: #5c636a;
+
+  /* Conectar Bootstrap con nuestro acento */
+  --bs-primary: var(--brand-primary);
+  --bs-primary-rgb: var(--brand-primary-rgb);
+  --bs-link-color: var(--brand-primary);
+  --bs-link-hover-color: var(--brand-primary-600);
+}
+
+/* ====== Botones ====== */
+.btn-primary{
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+  color: #fff !important;
+}
+.btn-primary:hover,
+.btn-primary:focus{
+  background-color: var(--brand-primary-600) !important;
+  border-color: var(--brand-primary-600) !important;
+}
+.btn-primary:active{
+  background-color: var(--brand-primary-700) !important;
+  border-color: var(--brand-primary-700) !important;
+}
+
+.btn-outline-secondary{
+  color: var(--brand-muted);
+  border-color: var(--brand-muted);
+  background-color: transparent;
+}
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus{
+  color: #fff;
+  background-color: var(--brand-muted-600);
+  border-color: var(--brand-muted-600);
+}
+.btn-outline-danger{ /* mantenemos rojo para acciones destructivas */
+  border-color: #dc3545;
+}
+
+/* Estado de foco consistente con el acento oscuro */
+.btn:focus{
+  box-shadow: 0 0 0 .2rem rgba(var(--brand-primary-rgb), .25) !important;
+}
+
+/* ====== Badges ====== */
+/* Forzamos el badge primario al acento oscuro */
+.badge.bg-primary{
+  background-color: var(--brand-primary) !important;
+}
+
+/* ====== Alerts (procesando) con acento gris oscuro ====== */
+.alert-info{
+  color: #212529;
+  background-color: rgba(var(--brand-primary-rgb), .075);
+  border-color: rgba(var(--brand-primary-rgb), .2);
+}
+
+/* ====== Barras de probabilidad ====== */
+.prog{
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.prog > div{
+  height: 100%;
+  background: var(--brand-primary);
+  transition: width .25s ease;
+}
+
+/* ====== Dropzone ====== */
+.dropzone{
+  border: 2px dashed rgba(0,0,0,.15);
+  background: rgba(0,0,0,.03);
+  border-radius: .75rem;
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+}
+.dropzone.dragover{
+  border-color: var(--brand-primary);
+  background: rgba(var(--brand-primary-rgb), .06);
+  color: var(--brand-primary);
+}
+
+/* Texto auxiliar */
+.small-muted{ color:#6c757d; font-size: .875rem; }
