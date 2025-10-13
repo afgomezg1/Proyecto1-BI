@@ -32,25 +32,23 @@ _lock = threading.Lock()
 _model = None
 _model_path: Optional[Path] = None
 _meta: Dict[str, Any] = {}
+_model_mtime: Optional[float] = None
 
 def _latest_joblib() -> Optional[Path]:
     jobs = sorted(ARTIFACTS_DIR.glob("*.joblib"))
     return jobs[-1] if jobs else None
 
-def load_model() -> Tuple[Any, Path, Dict]:
-    global _model, _model_path, _meta
-    if _model is not None:
-        return _model, _model_path, _meta
-
-    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-    path = ARTIFACTS_DIR / MODEL_FILENAME if MODEL_FILENAME else _latest_joblib()
-    if not path or not path.exists():
-        raise FileNotFoundError("No se encontró modelo .joblib en 'artifacts/'. Sube uno primero.")
-
+def _load_from_path(path: Path):
+    """Carga el modelo desde 'path' y actualiza cache global + meta."""
+    global _model, _model_path, _model_mtime, _meta
     _model = joblib.load(path)
     _model_path = path
+    try:
+        _model_mtime = path.stat().st_mtime
+    except Exception:
+        _model_mtime = None
 
-    # Card (si existe)
+    # recarga card/metadata (si existe)
     cards = list(ARTIFACTS_DIR.glob("model_card_*.json"))
     _meta = {}
     if cards:
@@ -58,6 +56,46 @@ def load_model() -> Tuple[Any, Path, Dict]:
             _meta = json.loads(sorted(cards)[-1].read_text(encoding="utf-8"))
         except Exception:
             _meta = {}
+
+
+def load_model() -> Tuple[Any, Path, Dict]:
+    """
+    Devuelve el modelo cacheado; si detecta que en disco hay un .joblib más nuevo
+    (por nombre o por mtime cuando se usa 'latest.joblib'), refresca el cache.
+    """
+    global _model, _model_path, _model_mtime, _meta
+
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # ¿Qué archivo deberíamos tener cargado?
+    desired = ARTIFACTS_DIR / MODEL_FILENAME if MODEL_FILENAME else _latest_joblib()
+    if not desired or not desired.exists():
+        raise FileNotFoundError("No se encontró modelo .joblib en 'artifacts/'. Sube uno primero.")
+
+    # Si no hay modelo en cache, carga directo
+    if _model is None or _model_path is None:
+        _load_from_path(desired)
+        return _model, _model_path, _meta
+
+    # Si la ruta cambió (nuevo timestamp) => recarga
+    try:
+        if desired.resolve() != _model_path.resolve():
+            _load_from_path(desired)
+            return _model, _model_path, _meta
+    except Exception:
+        # por si resolve() falla en alguna plataforma
+        if str(desired) != str(_model_path):
+            _load_from_path(desired)
+            return _model, _model_path, _meta
+
+    # Si la ruta es la misma (p.ej. latest.joblib) pero el archivo fue reemplazado => recarga por mtime
+    try:
+        current_mtime = desired.stat().st_mtime
+        if _model_mtime is None or current_mtime != _model_mtime:
+            _load_from_path(desired)
+    except Exception:
+        # si no se puede leer mtime, seguimos con el cache actual
+        pass
 
     return _model, _model_path, _meta
 
@@ -231,6 +269,13 @@ def retrain_incremental_and_save(
         global _model, _model_path
         _model = new_model
         _model_path = out_path
+        
+        try:
+            from os import stat
+            global _model_mtime
+            _model_mtime = out_path.stat().st_mtime
+        except Exception:
+            pass
 
         # --- persistir histórico actualizado
         _save_history_df(all_df)
